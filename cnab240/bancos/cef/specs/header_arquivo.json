@@ -72,13 +72,13 @@
     "10.0": {
       "nome": "cedente_convenio",
       "posicao_inicio": 59,
-      "posicao_fim": 64,
+      "posicao_fim": 65,
       "formato": "num"
     },
 
     "11.0": {
       "nome": "cedente_campoExclusivoCaixa",
-      "posicao_inicio": 65,
+      "posicao_inicio": 66,
       "posicao_fim": 71,
       "formato": "num",
       "default": 0
