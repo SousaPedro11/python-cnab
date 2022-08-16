@@ -1,4 +1,3 @@
-
 try:
     import unittest2 as unittest
 except ImportError:
@@ -14,17 +13,16 @@ from tests.data import get_itau_data_from_file
 
 
 class TestLote(unittest.TestCase):
-
     def __init__(self, *args, **kwargs):
         super(TestLote, self).__init__(*args, **kwargs)
         self.maxDiff = None
 
     def setUp(self):
         itau_data = get_itau_data_from_file()
-        self.lote = itau_data['lote_cob']
-        self.evento_1 = itau_data['evento_cob1']
-        self.evento_2 = itau_data['evento_cob2']
-        self.remessa = itau_data['remessa']
+        self.lote = itau_data["lote_cob"]
+        self.evento_1 = itau_data["evento_cob1"]
+        self.evento_2 = itau_data["evento_cob2"]
+        self.remessa = itau_data["remessa"]
 
     def test_init(self):
         self.assertEqual(self.lote.eventos, [])

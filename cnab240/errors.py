@@ -14,14 +14,13 @@ class AtribuicaoCampoError(Cnab240Error):
         super(AtribuicaoCampoError, self).__init__()
 
     def __str__(self):
-        return 'campo:{0} formato:{1} decimais:{2} digitos:{3} - valor:{4}'.\
-            format(
-                self.campo.nome,
-                self.campo.formato,
-                self.campo.decimais,
-                self.campo.digitos,
-                repr(self.valor),
-            )
+        return "campo:{0} formato:{1} decimais:{2} digitos:{3} - valor:{4}".format(
+            self.campo.nome,
+            self.campo.formato,
+            self.campo.decimais,
+            self.campo.digitos,
+            repr(self.valor),
+        )
 
 
 class NumDigitosExcedidoError(AtribuicaoCampoError):
@@ -44,8 +43,9 @@ class FaltandoArgsError(Cnab240Error):
         super(FaltandoArgsError, self).__init__()
 
     def __str__(self):
-        return ('Os seguintes kwargs sao obrigatorios e nao foram '
-                'encontrados: {0}').format(', '.join(self.args_faltantes))
+        return (
+            "Os seguintes kwargs sao obrigatorios e nao foram " "encontrados: {0}"
+        ).format(", ".join(self.args_faltantes))
 
 
 class ArquivoVazioError(Cnab240Error):
@@ -53,7 +53,7 @@ class ArquivoVazioError(Cnab240Error):
 
 
 class NenhumEventoError(Cnab240Error):
-    """Tentativa de escrita de lote sem eventos. """
+    """Tentativa de escrita de lote sem eventos."""
 
 
 class CampoObrigatorioError(Cnab240Error):

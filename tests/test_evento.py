@@ -1,4 +1,3 @@
-
 try:
     import unittest2 as unittest
 except ImportError:
@@ -15,17 +14,17 @@ class TestEvento(unittest.TestCase):
     def test_getattributes(self):
         self.assertEqual(self.evento._segmentos, [])
 
-        test_obj = type('TestObject', (object,), {'test_attr': None})()
+        test_obj = type("TestObject", (object,), {"test_attr": None})()
         self.evento._segmentos.append(test_obj)
-        test_obj.test_attr = 'Hello World'
-        self.evento.test_attr = 'Goodbye World'
+        test_obj.test_attr = "Hello World"
+        self.evento.test_attr = "Goodbye World"
 
-        self.assertNotEqual(self.evento.test_attr, 'Goodbye World')
-        self.assertEqual(self.evento.test_attr, 'Hello World')
+        self.assertNotEqual(self.evento.test_attr, "Goodbye World")
+        self.assertEqual(self.evento.test_attr, "Hello World")
 
     def test_unicode(self):
-        self.assertEqual(str(self.evento), '')
-        self.evento._segmentos.append('test_1')
-        self.assertEqual(str(self.evento), 'test_1')
-        self.evento._segmentos.append('test_2')
-        self.assertEqual(str(self.evento), 'test_1\r\ntest_2')
+        self.assertEqual(str(self.evento), "")
+        self.evento._segmentos.append("test_1")
+        self.assertEqual(str(self.evento), "test_1")
+        self.evento._segmentos.append("test_2")
+        self.assertEqual(str(self.evento), "test_1\r\ntest_2")

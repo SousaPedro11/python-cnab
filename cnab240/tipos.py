@@ -7,7 +7,6 @@ from cnab240 import errors
 
 
 class Evento(object):
-
     def __init__(self, banco, codigo_evento):
         self._segmentos = []
         self.banco = banco
@@ -24,13 +23,13 @@ class Evento(object):
         return self._segmentos
 
     def __getattribute__(self, name):
-        for segmento in object.__getattribute__(self, '_segmentos'):
+        for segmento in object.__getattribute__(self, "_segmentos"):
             if hasattr(segmento, name):
                 return getattr(segmento, name)
         return object.__getattribute__(self, name)
 
     def __str__(self):
-        return '\r\n'.join(str(seg) for seg in self._segmentos)
+        return "\r\n".join(str(seg) for seg in self._segmentos)
 
     def __len__(self):
         return len(self._segmentos)
@@ -54,7 +53,6 @@ class Evento(object):
 
 
 class Lote(object):
-
     def __init__(self, banco, header=None, trailer=None):
         self.banco = banco
         self.header = header
@@ -95,8 +93,7 @@ class Lote(object):
             raise TypeError
 
         self._eventos.append(evento)
-        if self.trailer is not None and hasattr(
-                self.trailer, 'quantidade_registros'):
+        if self.trailer is not None and hasattr(self.trailer, "quantidade_registros"):
             self.trailer.quantidade_registros += len(evento)
         self.atualizar_codigo_registros()
 
@@ -114,23 +111,22 @@ class Lote(object):
         result.extend(str(evento) for evento in self._eventos)
         if self.trailer is not None:
             result.append(str(self.trailer))
-        return '\r\n'.join(result)
+        return "\r\n".join(result)
 
     def __len__(self):
-        if self.trailer is not None and hasattr(self.trailer, 'quantidade_registros'):
+        if self.trailer is not None and hasattr(self.trailer, "quantidade_registros"):
             return self.trailer.quantidade_registros
         else:
             return len(self._eventos)
 
 
 class Arquivo(object):
-
     def __init__(self, banco, **kwargs):
         """Arquivo Cnab240."""
 
         self._lotes = []
         self.banco = banco
-        arquivo = kwargs.get('arquivo')
+        arquivo = kwargs.get("arquivo")
         if isinstance(arquivo, (IOBase, codecs.StreamReaderWriter)):
             return self.carregar_retorno(arquivo)
 
@@ -139,13 +135,17 @@ class Arquivo(object):
         self.trailer.totais_quantidade_lotes = 0
         self.trailer.totais_quantidade_registros = 2
 
-        if "arquivo_data_de_geracao" in dir(self.header) and \
-           self.header.arquivo_data_de_geracao is None:
+        if (
+            "arquivo_data_de_geracao" in dir(self.header)
+            and self.header.arquivo_data_de_geracao is None
+        ):
             now = datetime.now()
             self.header.arquivo_data_de_geracao = int(now.strftime("%d%m%Y"))
 
-        if "arquivo_hora_de_geracao" in dir(self.header) and \
-           self.header.arquivo_hora_de_geracao is None:
+        if (
+            "arquivo_hora_de_geracao" in dir(self.header)
+            and self.header.arquivo_hora_de_geracao is None
+        ):
             if now is None:
                 now = datetime.now()
             self.header.arquivo_hora_de_geracao = int(now.strftime("%H%M%S"))
@@ -157,43 +157,40 @@ class Arquivo(object):
 
         for linha in arquivo:
             tipo_registro = linha[7]
-            if tipo_registro == '0':
+            if tipo_registro == "0":
                 if "HeaderArquivoRet" in dir(self.banco.registros):
                     self.header = self.banco.registros.HeaderArquivoRet()
                 else:
                     self.header = self.banco.registros.HeaderArquivo()
                 self.header.carregar(linha)
 
-            elif tipo_registro == '1':
+            elif tipo_registro == "1":
                 codigo_servico = linha[9:11]
 
-                if codigo_servico == '01':
+                if codigo_servico == "01":
                     if "HeaderLoteCobrancaRet" in dir(self.banco.registros):
-                        header_lote = \
-                            self.banco.registros.HeaderLoteCobrancaRet()
+                        header_lote = self.banco.registros.HeaderLoteCobrancaRet()
                     else:
                         header_lote = self.banco.registros.HeaderLoteCobranca()
                     header_lote.carregar(linha)
                     if "TrailerLoteCobrancaRet" in dir(self.banco.registros):
-                        trailer_lote = \
-                            self.banco.registros.TrailerLoteCobrancaRet()
+                        trailer_lote = self.banco.registros.TrailerLoteCobrancaRet()
                     else:
-                        trailer_lote = \
-                            self.banco.registros.TrailerLoteCobranca()
+                        trailer_lote = self.banco.registros.TrailerLoteCobranca()
                     lote_aberto = Lote(self.banco, header_lote, trailer_lote)
                     self._lotes.append(lote_aberto)
-                elif codigo_servico == '04':
+                elif codigo_servico == "04":
                     header_lote = self.banco.registros.HeaderLoteExtrato()
                     header_lote.carregar(linha)
                     trailer_lote = self.banco.registros.TrailerLoteExtrato()
                     lote_aberto = Lote(self.banco, header_lote, trailer_lote)
                     self._lotes.append(lote_aberto)
 
-            elif tipo_registro == '3':
+            elif tipo_registro == "3":
                 tipo_segmento = linha[13]
                 codigo_evento = linha[15:17]
 
-                if tipo_segmento == 'T':
+                if tipo_segmento == "T":
                     seg_t = self.banco.registros.SegmentoT()
                     seg_t.carregar(linha)
 
@@ -201,28 +198,28 @@ class Arquivo(object):
                     lote_aberto._eventos.append(evento_aberto)
                     evento_aberto._segmentos.append(seg_t)
 
-                elif tipo_segmento == 'U':
+                elif tipo_segmento == "U":
                     seg_u = self.banco.registros.SegmentoU()
                     seg_u.carregar(linha)
                     evento_aberto._segmentos.append(seg_u)
                     evento_aberto = None
 
-                elif tipo_segmento == 'E':
+                elif tipo_segmento == "E":
                     seg_e = self.banco.registros.SegmentoE()
                     seg_e.carregar(linha)
-                    if codigo_evento == '  ':
+                    if codigo_evento == "  ":
                         codigo_evento = 0
                     evento_aberto = Evento(self.banco, int(codigo_evento))
                     lote_aberto._eventos.append(evento_aberto)
                     evento_aberto._segmentos.append(seg_e)
 
-            elif tipo_registro == '5':
+            elif tipo_registro == "5":
                 if trailer_lote is not None:
                     lote_aberto.trailer.carregar(linha)
                 else:
                     raise Exception
 
-            elif tipo_registro == '9':
+            elif tipo_registro == "9":
                 if "TrailerArquivoRet" in dir(self.banco.registros):
                     self.trailer = self.banco.registros.TrailerArquivoRet()
                 else:
@@ -257,9 +254,11 @@ class Arquivo(object):
             self.adicionar_lote(lote_cobranca)
 
             if "controlecob_numero" not in dir(header):
-                header.controlecob_numero = int('{0}{1:02}'.format(
-                    self.header.arquivo_sequencia,
-                    lote_cobranca.codigo))
+                header.controlecob_numero = int(
+                    "{0}{1:02}".format(
+                        self.header.arquivo_sequencia, lote_cobranca.codigo
+                    )
+                )
 
             if "controlecob_data_gravacao" not in dir(header):
                 header.controlecob_data_gravacao = self.header.arquivo_data_de_geracao
@@ -281,16 +280,16 @@ class Arquivo(object):
         lote.codigo = len(self._lotes)
 
         if self.trailer is not None:
-            if hasattr(self.trailer, 'totais_quantidade_lotes'):
+            if hasattr(self.trailer, "totais_quantidade_lotes"):
                 # Incrementar numero de lotes no trailer do arquivo
                 self.trailer.totais_quantidade_lotes += 1
 
-            if hasattr(self.trailer, 'totais_quantidade_registros'):
+            if hasattr(self.trailer, "totais_quantidade_registros"):
                 # Incrementar numero de registros no trailer do arquivo
                 self.trailer.totais_quantidade_registros += len(lote)
 
     def escrever(self, file_):
-        file_.write(str(self).encode('ascii'))
+        file_.write(str(self).encode("ascii"))
 
     def __str__(self):
         if not self._lotes:
@@ -301,8 +300,8 @@ class Arquivo(object):
         result.extend(str(lote) for lote in self._lotes)
         result.append(str(self.trailer))
         # Adicionar elemento vazio para arquivo terminar com \r\n
-        result.append('')
-        return '\r\n'.join(result)
+        result.append("")
+        return "\r\n".join(result)
 
     def encontrar_lote_pag(self, codigo_servico):
         for lote in self.lotes:
